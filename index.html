@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<title>正在打开得到 App…</title>
+<style>
+:root{color-scheme:light dark;--bg:#f5f6f8;--card:#fff;--text:#202124;--muted:#6b7280;--accent:#ff6b00;--line:#e5e7eb}
+@media (prefers-color-scheme:dark){:root{--bg:#111214;--card:#1c1d20;--text:#f3f4f6;--muted:#a1a1aa;--line:#33353a}}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}
+.card{width:100%;max-width:420px;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:28px 24px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.08)}
+.logo{width:56px;height:56px;border-radius:14px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;margin:0 auto 16px}
+h1{font-size:20px;line-height:1.45;margin:0 0 8px;font-weight:700}
+.sub{font-size:14px;line-height:1.7;color:var(--muted);margin:0 0 22px}
+.ep{font-size:14px;color:var(--text);background:var(--bg);border-radius:10px;padding:10px 12px;margin:0 0 20px;word-break:break-word}
+.btn{display:block;width:100%;padding:13px 16px;border-radius:12px;text-decoration:none;font-size:16px;font-weight:600;margin:10px 0 0}
+.primary{background:var(--accent);color:#fff}
+.secondary{background:transparent;color:var(--muted);border:1px solid var(--line);font-weight:500;font-size:14px}
+.hint{font-size:12px;line-height:1.6;color:var(--muted);margin-top:18px}
+</style>
+</head>
+<body>
+<main class="card">
+  <div class="logo">得</div>
+  <h1>正在打开得到 App…</h1>
+  <p class="sub">如果几秒后没有跳转，请点下面的按钮。</p>
+  <div id="ep" class="ep" style="display:none"></div>
+  <a id="open" class="btn primary" href="#">打开得到 App</a>
+  <a id="web" class="btn secondary" href="#">在网页中收听本期</a>
+  <p id="hint" class="hint">手机需已安装「得到」App；未安装可先下载。</p>
+</main>
+<script>
+(function(){
+  var p = new URLSearchParams(location.search);
+  var alias = p.get('alias') || '';
+  var id = p.get('id') || '';
+  var title = p.get('title') || '';
+  var appUrl = alias ? 'igetapp://base/webproxy?aliasId=' + encodeURIComponent(alias) : '';
+  var webUrl = id ? 'https://m.igetget.com/share/course/article?id=' + encodeURIComponent(id) : 'https://www.dedao.cn/';
+  var open = document.getElementById('open');
+  var web = document.getElementById('web');
+  var ep = document.getElementById('ep');
+  var hint = document.getElementById('hint');
+  if (title) { ep.textContent = title; ep.style.display = 'block'; }
+  open.href = appUrl || webUrl;
+  web.href = webUrl;
+  if (!alias) { open.textContent = '打开得到 App'; }
+  function goApp(e){
+    if (e) e.preventDefault();
+    if (!appUrl) { location.href = webUrl; return; }
+    hint.textContent = '若未自动打开，请确认已安装「得到」App，再点上方按钮。';
+    location.href = appUrl;
+  }
+  open.addEventListener('click', goApp);
+  // 手机端自动尝试唤起 App；桌面端保留手动按钮，避免弹出未知协议
+  if (alias && /iPhone|iPad|iPod|Android|HarmonyOS|OpenHarmony/i.test(navigator.userAgent)) {
+    setTimeout(function(){ location.href = appUrl; }, 180);
+  }
+  // 未安装/被拦截时给出明确提示
+  setTimeout(function(){
+    if (!document.hidden) {
+      hint.textContent = '没有自动打开？请确认手机已安装「得到」App；也可以点“在网页中收听本期”。';
+    }
+  }, 1800);
+})();
+</script>
+</body>
+</html>
